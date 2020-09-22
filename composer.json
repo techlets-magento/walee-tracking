@@ -1,5 +1,5 @@
 {
-    "name": "techlets-dev/walee-tracking",
+    "name": "techlets-magento/walee-tracking",
     "description": "Walee Tracking Plugin enables businesses to keep track of influencers' performance on their campaign hosted on https://walee.pk",
     "type": "magento2-module",
     "version": "1.0.0",
