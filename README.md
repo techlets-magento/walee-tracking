@@ -1,5 +1,4 @@
 ## Walee Tracking Plugin for Magento 2 
-[![Latest Stable Version](https://iopproduction.s3.eu-central-1.amazonaws.com/iop-extensions/walee-tracking-magento-07-sept.zip)](https://packagist.org/packages/boltpay/bolt-magento2)
 
 
 ### 1. Requirements
