@@ -1,0 +1,29 @@
+{
+    "name": "Techlets-dev/walee-tracking",
+    "description": "Walee Tracking Plugin enables businesses to keep track of influencers' performance on their campaign hosted on https://walee.pk",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+      "OSL-3.0",
+      "AFL-3.0"
+    ],
+    "authors": [
+        {
+          "name": "Techlets Pvt. Ltd.",
+          "email": "naqqash.riasat@techletspk.com",
+          "homepage": "https://walee.pk",
+          "role": "Admin"
+        }
+    ],
+    "require": {
+      "php": "~5.0.0||~7.3.0",
+      "magento/framework": "~100.0.*|100.1.*|101.0.*|102.0.*",
+      "ext-curl": "*"
+    },
+    "autoload": {
+      "files": [ "registration.php" ],
+      "psr-4": {
+        "Walee\\Tracking\\": ""
+      }
+    }
+}

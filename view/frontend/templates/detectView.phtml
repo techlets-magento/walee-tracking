@@ -1,0 +1,71 @@
+<?php
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+    $tableName = $resource->getTableName('wt_match_data');
+    $matchDataTable = $resource->getTableName('wt_match_data');
+    $viewsTable = $resource->getTableName('wt_views');
+
+    $ip = get_client_ip(); 
+    $source = null;
+    if(isset($_GET['utm_source'])){
+        $source = $_GET['utm_source'];
+    }
+    if($source != null && $ip != ''){
+        $sql = "INSERT INTO " . $tableName . "(referrer, ip) VALUES ('".$source."', '".$ip."')";
+        $result = $connection->query($sql);
+        sendCurlPost("/api/tracking/newWordPressHook", [
+            'referrer' => $source,
+            'hookType' => 'Link Click',
+            'foriegn_id' => $connection->lastInsertId()
+        ]);
+    }
+
+    $currentPage = $_SERVER['REQUEST_URI'];
+    $sql = "SELECT referrer FROM $matchDataTable 
+            WHERE ip = '$ip' AND ip != '' AND createdOn > DATE_ADD(NOW(), INTERVAL -7 DAY) 
+            AND referrer is not null ORDER BY createdOn DESC LIMIT 1;";
+    $result1 = $connection->fetchAll($sql);
+    if($result1 && isset($result1[0]) && isset($result1[0]['referrer'])){
+        $sql = "INSERT INTO " . $viewsTable . "(referrer, page) VALUES ('".$result1[0]['referrer']."', '".$currentPage."')";
+        $result2 = $connection->query($sql);
+        sendCurlPost("/api/tracking/newWordPressHook", [
+            'page' => $currentPage, 
+            'referrer' => $result1[0]['referrer'],
+            'hookType' => 'Page Views',
+            'foriegn_id' => $connection->lastInsertId()
+        ]);
+    }
+
+    function get_client_ip() {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if(isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        return $ipaddress;
+    }
+
+    function sendCurlPost($url, $vars){
+        $vars['installed_version'] = '1.0.0';
+        $vars['type'] = 'magento';
+        $vars['domain'] = $_SERVER['SERVER_NAME'];
+        $payload = json_encode( $vars );
+        $postUrl = "https://influencersofpakistan.com".$url;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$postUrl);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        $server_output = curl_exec($ch);
+        curl_close ($ch);
+    }
